@@ -50,7 +50,7 @@ pipeline {
                     withKubeConfig([credentialsId: 'minikube-service', serverUrl: 'http://127.0.0.1:65127']) {
                         sh '''
                         echo "Applying deployment..."
-                        kubectl apply -f deployment.yml
+                        kubectl apply -f deployment.yaml
                         '''
                     }
                 }
