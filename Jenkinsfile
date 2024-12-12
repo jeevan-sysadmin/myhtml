@@ -47,7 +47,7 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'gitlabkube']) {
+                    withKubeConfig([credentialsId: 'minikube-service-account']) {
                         sh '''
                         echo "Applying deployment..."
                         kubectl apply -f deployment.yml
