@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: html-app
-          image: yourusername/yourimage:latest
+          image: appi12/html01:2
           ports:
             - containerPort: 80
 ---
