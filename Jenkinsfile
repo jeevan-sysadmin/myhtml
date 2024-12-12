@@ -47,7 +47,7 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'e18ec9cc-52b4-491f-8cec-e08bb6bc9a18']) {
+                    withKubeConfig([credentialsId: 'fe0d7e91-3921-463a-827c-d5f5498a9721']) {
                         sh '''
                         echo "Applying deployment..."
                         kubectl apply -f deployment.yml
