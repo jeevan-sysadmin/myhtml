@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_REPO = "appi12/jeeva"
+        DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
-        KUBERNETES_DEPLOYMENT = "my-nodejs-app-deployment"
+        KUBERNETES_DEPLOYMENT = "myhtml"
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_CREDENTIALS_ID = 'minikube-service-account' // Jenkins credentials ID for Minikube service account token
     }
