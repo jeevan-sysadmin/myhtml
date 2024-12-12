@@ -3,15 +3,22 @@ pipeline {
 
     environment {
         DOCKER_HUB_REPO = "appi12/html01"
-        DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"  // Docker image tagged with build number
-        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+        KUBERNETES_DEPLOYMENT = "html-my"
+        KUBERNETES_NAMESPACE = "default"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 echo 'Fetching code from GitHub...'
-                git 'https://github.com/jeevan-sysadmin/myhtml.git'
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/jeevan-sysadmin/myhtml.git',
+                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
+                    ]]
+                ])
             }
         }
 
@@ -19,8 +26,7 @@ pipeline {
             steps {
                 echo 'Building Docker image...'
                 script {
-                    // Build the Docker image
-                    sh 'docker build -t $DOCKER_REGISTRY/$DOCKER_IMAGE .'
+                    docker.build("${DOCKER_IMAGE}")
                 }
             }
         }
@@ -29,9 +35,7 @@ pipeline {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
                 script {
-                    // Log in to Docker Hub using the credentials stored in Jenkins
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        // Push the Docker image to the registry
                         docker.image("${DOCKER_IMAGE}").push()
                     }
                 }
@@ -42,8 +46,13 @@ pipeline {
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Apply the Kubernetes deployment file
-                    sh 'kubectl apply -f deployment.yaml'
+                    // Ensure kubectl is installed and configured
+                    withKubeConfig([credentialsId: 'kube']) {
+                        sh '''
+                        echo "Applying deployment..."
+                        kubectl apply -f deployment.yml
+                        '''
+                    }
                 }
             }
         }
