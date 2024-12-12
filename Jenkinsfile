@@ -16,7 +16,7 @@ pipeline {
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/jeevan-sysadmin/CICD.git',
+                        url: 'https://github.com/jeevan-sysadmin/myhtml.git',
                         credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'  // Ensure this credential ID exists in Jenkins
                     ]])
             }
