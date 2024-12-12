@@ -7,7 +7,7 @@ pipeline {
         KUBERNETES_DEPLOYMENT = "myhtml"
         KUBERNETES_NAMESPACE = "default"
         KUBERNETES_CREDENTIALS_ID = 'minikube-service-account' // Jenkins credentials ID for Minikube service account token (not used in this pipeline)
-        KUBECONFIG_PATH = 'C:\Users\JEEVANLAROSH\.kube\config' // Specify the path to your kubeconfig file
+        KUBECONFIG_PATH = 'C:\\Users\\JEEVANLAROSH\\.kube\\config' // Specify the path to your kubeconfig file
     }
 
     stages {
@@ -49,8 +49,8 @@ pipeline {
                 script {
                     // Use kubeconfig directly for Kubernetes authentication (not using service account token)
                     withCredentials([file(credentialsId: 'minikube-kubeconfig', variable: 'KUBE_CONFIG')]) {
-                        // Export the KUBECONFIG environment variable
-                        sh 'export KUBECONFIG=$KUBE_CONFIG'
+                        // Export the KUBECONFIG environment variable (Windows-compatible syntax)
+                        bat "set KUBECONFIG=${KUBE_CONFIG}"
                         echo "Authenticated to Minikube Kubernetes cluster."
                     }
                 }
@@ -58,7 +58,7 @@ pipeline {
                 echo "Applying deployment..."
                 script {
                     // Apply the Kubernetes deployment
-                    sh 'kubectl apply -f deployment.yml --namespace=${KUBERNETES_NAMESPACE}'
+                    bat "kubectl apply -f deployment.yml --namespace=${KUBERNETES_NAMESPACE}"
                 }
             }
         }
@@ -68,11 +68,11 @@ pipeline {
                 echo 'Setting up port forwarding for the application...'
                 script {
                     // Get the name of the pod running the deployment
-                    def podName = sh(script: "kubectl get pod -l app=${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE} -o jsonpath='{.items[0].metadata.name}'", returnStdout: true).trim()
+                    def podName = bat(script: "kubectl get pod -l app=${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE} -o jsonpath='{.items[0].metadata.name}'", returnStdout: true).trim()
                     echo "Found pod: ${podName}"
 
                     // Set up port forwarding from the pod to local machine (8082:80)
-                    sh "kubectl port-forward pod/${podName} 8082:80 -n ${KUBERNETES_NAMESPACE} &"
+                    bat "start /B kubectl port-forward pod/${podName} 8082:80 -n ${KUBERNETES_NAMESPACE}"
                     echo 'Port forwarding is set up. Access the app at http://localhost:8082.'
                 }
             }
