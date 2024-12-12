@@ -46,15 +46,15 @@ pipeline {
             steps {
                 echo "Setting up Kubernetes authentication..."
                 script {
-                    // Use the kubeconfig from Jenkins credentials (minikube-service-account)
-                    withCredentials([file(credentialsId: 'minikube-kubeconfig')]) {
-                        // Export the KUBECONFIG environment variable using the provided kubeconfig file
-                
-                        echo "Authenticated to Minikube Kubernetes cluster."
+                    // Use Jenkins credentials to authenticate with Minikube
+                    withCredentials([file(credentialsId: 'minikube-kubeconfig', variable: 'KUBE_CONFIG')]) {
+                        // Directly set the KUBECONFIG path for kubectl
+                        echo "Using Minikube kubeconfig for kubectl authentication"
+                        bat "set KUBECONFIG=${KUBE_CONFIG}"
                     }
                 }
 
-                echo "Applying deployment..."
+                echo "Applying Kubernetes deployment..."
                 script {
                     // Apply the Kubernetes deployment
                     bat "kubectl apply -f deployment.yml --namespace=${KUBERNETES_NAMESPACE}"
@@ -70,7 +70,7 @@ pipeline {
                     def podName = bat(script: "kubectl get pod -l app=${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE} -o jsonpath='{.items[0].metadata.name}'", returnStdout: true).trim()
                     echo "Found pod: ${podName}"
 
-                    // Set up port forwarding from the pod to local machine (8082:80)
+                    // Set up port forwarding from the pod to the local machine (8082:80)
                     bat "start /B kubectl port-forward pod/${podName} 8082:80 -n ${KUBERNETES_NAMESPACE}"
                     echo 'Port forwarding is set up. Access the app at http://localhost:8082.'
                 }
