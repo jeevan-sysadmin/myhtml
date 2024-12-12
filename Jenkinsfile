@@ -49,9 +49,9 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured with the right credentials
-                    withKubeConfig([credentialsId: 'jenkinsminikube']) {
+                    withKubeConfig([credentialsId: 'minikube-service-account']) {
                         // Apply Kubernetes deployment file
-                        sh 'kubectl apply -f deployment.yaml'
+                        sh 'kubectl apply -f deployment.yml'
                     }
                 }
             }
