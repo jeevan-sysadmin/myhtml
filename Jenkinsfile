@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_REPO = "appi12/html01"
+        DOCKER_HUB_REPO = "appi12/html01" // Replace with your Docker Hub repository
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
-        KUBERNETES_DEPLOYMENT = "html-my"
+        KUBERNETES_DEPLOYMENT = "html-my" // Replace with your Kubernetes deployment name
         KUBERNETES_NAMESPACE = "default"
     }
 
@@ -15,8 +15,8 @@ pipeline {
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/jeevan-sysadmin/myhtml.git',
-                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
+                        url: 'https://github.com/jeevan-sysadmin/myhtml.git', // Replace with your repository URL
+                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1' // Replace with your GitHub credentials ID
                     ]]
                 ])
             }
@@ -47,10 +47,16 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'https://127.0.0.1:56229']) {
+                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'https://127.0.0.1:56229']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
-                        kubectl apply -f deployment.yaml
+                        if kubectl get deployment ${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE} >/dev/null 2>&1; then
+                            echo "Updating existing deployment..."
+                            kubectl apply -f deployment.yaml -n ${KUBERNETES_NAMESPACE}
+                        else
+                            echo "Creating new deployment..."
+                            kubectl apply -f deployment.yaml -n ${KUBERNETES_NAMESPACE}
+                        fi
                         '''
                     }
                 }
