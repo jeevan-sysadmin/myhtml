@@ -6,8 +6,7 @@ pipeline {
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
         KUBERNETES_DEPLOYMENT = "myhtml"
         KUBERNETES_NAMESPACE = "default"
-        KUBERNETES_CREDENTIALS_ID = 'minikube-service-account' // Jenkins credentials ID for Minikube service account token (not used in this pipeline)
-        KUBECONFIG_PATH = 'C:\\Users\\JEEVANLAROSH\\.kube\\config' // Specify the path to your kubeconfig file
+        KUBERNETES_CREDENTIALS_ID = 'minikube-service-account' // Jenkins credentials ID for Minikube service account token
     }
 
     stages {
@@ -47,10 +46,10 @@ pipeline {
             steps {
                 echo "Setting up Kubernetes authentication..."
                 script {
-                    // Use kubeconfig directly for Kubernetes authentication (not using service account token)
-                    withCredentials([file(credentialsId: 'minikube-kubeconfig', variable: 'KUBE_CONFIG')]) {
-                        // Export the KUBECONFIG environment variable (Windows-compatible syntax)
-                        bat "set KUBECONFIG=${KUBE_CONFIG}"
+                    // Use the kubeconfig from Jenkins credentials (minikube-service-account)
+                    withCredentials([file(credentialsId: 'minikube-kubeconfig')]) {
+                        // Export the KUBECONFIG environment variable using the provided kubeconfig file
+                
                         echo "Authenticated to Minikube Kubernetes cluster."
                     }
                 }
