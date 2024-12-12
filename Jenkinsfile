@@ -17,7 +17,8 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/jeevan-sysadmin/myhtml.git',
                         credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
-                    ]])
+                    ]]
+                ])
             }
         }
 
@@ -46,11 +47,10 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'kube', serverUrl: 'https://api.k8s.my-company.com']) {
+                    withKubeConfig([credentialsId: 'kube']) {
                         sh '''
-                        echo "Applying Kubernetes deployment..."
-                        kubectl set image deployment/${KUBERNETES_DEPLOYMENT} ${KUBERNETES_DEPLOYMENT}=${DOCKER_IMAGE} -n ${KUBERNETES_NAMESPACE}
-                        kubectl apply -f deployment.yml -n ${KUBERNETES_NAMESPACE}
+                        echo "Applying deployment..."
+                        kubectl apply -f deployment.yml
                         '''
                     }
                 }
