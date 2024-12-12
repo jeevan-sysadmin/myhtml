@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: html-app-deployment
+  name: jeeva-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: html-app
+      app: jeeva-app
   template:
     metadata:
       labels:
-        app: html-app
+        app: jeeva-app
     spec:
       containers:
-        - name: html-app
+        - name: jeeva-app
           image: appi12/html01:2
           ports:
             - containerPort: 80
@@ -21,10 +21,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: html-app-service
+  name: jeeva-app-service
 spec:
   selector:
-    app: html-app
+    app: jeeva-app
   ports:
     - protocol: TCP
       port: 80
