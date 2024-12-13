@@ -5,7 +5,7 @@ pipeline {
         DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
         KUBERNETES_DEPLOYMENT = "html-my"
-        KUBERNETES_NAMESPACE = "jenkins"
+        KUBERNETES_NAMESPACE = "default"
     }
 
     stages {
@@ -54,7 +54,7 @@ metadata:
   name: jenkins-agent
 spec:
   containers:
-  - name: jeeva
+  - name: jnlp
     image: appi12/html01:2
     command:
       - cat
