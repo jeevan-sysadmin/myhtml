@@ -47,7 +47,7 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'https://127.0.0.1:62413']) { // Replace with your kubeconfig details
+                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:62413']) { // Replace with your kubeconfig details
                         sh '''
                         minikube start --driver=docker
                         echo "Applying deployment..."
