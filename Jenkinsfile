@@ -1,8 +1,6 @@
 pipeline {
     agent {
-        kubernetes {
-            defaultContainer 'jenkins-kube-pipline-7-s4d1p-c4ksp-kfbg4'
-        }
+        kubernetes
     }
 
     environment {
