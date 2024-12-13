@@ -5,7 +5,7 @@ pipeline {
         DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
         KUBERNETES_DEPLOYMENT = "html-my"
-        KUBERNETES_NAMESPACE = "jenkins"
+        KUBERNETES_NAMESPACE = "default"
     }
 
     stages {
@@ -17,7 +17,8 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/jeevan-sysadmin/myhtml.git',
                         credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
-                    ]])
+                    ]]
+                ])
             }
         }
 
@@ -42,13 +43,36 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
+            agent {
+                kubernetes {
+                    label 'k8s-agent'  // Name of the label for your Kubernetes agent
+                    defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
+                    yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: jnlp
+    image: appi12/html01:2
+    command:
+      - cat
+    tty: true
+"""
+                }
+            }
+
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Create a Kubernetes deployment using kubectl
-                    sh """
-                        kubectl set image deployment/${KUBERNETES_DEPLOYMENT} ${KUBERNETES_DEPLOYMENT}=${DOCKER_IMAGE} -n ${KUBERNETES_NAMESPACE}
-                    """
+                    // Ensure kubectl is installed and configured
+                    withKubeConfig([credentialsId: 'kube']) {
+                        sh '''
+                        echo "Applying deployment..."
+                        kubectl apply -f deployment.yml
+                        '''
+                    }
                 }
             }
         }
