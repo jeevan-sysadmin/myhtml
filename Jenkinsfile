@@ -1,26 +1,5 @@
-pipeline {
-    agent {
-        kubernetes {
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: docker
-    image: docker:latest
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run/docker.sock
-  volumes:
-  - name: docker-socket
-    hostPath:
-      path: /var/run/docker.sock
-"""
-        }
-    }
+ipeline {
+    agent kubernetes 
 
     environment {
         DOCKER_HUB_REPO = "appi12/html01" // Replace with your Docker Hub repository
@@ -46,10 +25,8 @@ spec:
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                container('docker') {
-                    script {
-                        docker.build("${DOCKER_IMAGE}")
-                    }
+                script {
+                    docker.build("${DOCKER_IMAGE}")
                 }
             }
         }
@@ -57,11 +34,9 @@ spec:
         stage('Push Docker Image') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                container('docker') {
-                    script {
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                            docker.image("${DOCKER_IMAGE}").push()
-                        }
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE}").push()
                     }
                 }
             }
@@ -71,6 +46,7 @@ spec:
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
+                    // Ensure kubectl is installed and configured
                     withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
