@@ -1,35 +1,16 @@
 pipeline {
     agent {
         kubernetes {
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: docker
-    image: docker:20.10.24-dind
-    securityContext:
-      privileged: true
-    volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run/docker.sock
-  - name: kubectl
-    image: bitnami/kubectl:latest
-    command:
-    - cat
-    tty: true
-  volumes:
-  - name: docker-socket
-    hostPath:
-      path: /var/run/docker.sock
-"""
+            label 'html-agent'  // Label to identify the agent in the Kubernetes cluster
+            defaultContainer 'jnlp' // The default container for Jenkins agent to communicate with Jenkins
+            // yamlFile 'k8s-pod.yaml'  // YAML file that defines the pod configuration (you can use inline YAML too)
         }
     }
 
     environment {
-        DOCKER_HUB_REPO = "appi12/html01" // Replace with your Docker Hub repository
+        DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
-        KUBERNETES_DEPLOYMENT = "html-my" // Replace with your Kubernetes deployment name
+        KUBERNETES_DEPLOYMENT = "html-my"
         KUBERNETES_NAMESPACE = "default"
     }
 
@@ -40,8 +21,8 @@ spec:
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/jeevan-sysadmin/myhtml.git', // Replace with your repository URL
-                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1' // Replace with your GitHub credentials ID
+                        url: 'https://github.com/jeevan-sysadmin/myhtml.git',
+                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
                     ]]
                 ])
             }
@@ -50,10 +31,8 @@ spec:
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                container('docker') {
-                    script {
-                        docker.build("${DOCKER_IMAGE}")
-                    }
+                script {
+                    docker.build("${DOCKER_IMAGE}")
                 }
             }
         }
@@ -61,11 +40,9 @@ spec:
         stage('Push Docker Image') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                container('docker') {
-                    script {
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                            docker.image("${DOCKER_IMAGE}").push()
-                        }
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE}").push()
                     }
                 }
             }
@@ -74,19 +51,12 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes...'
-                container('kubectl') {
-                    script {
-                        withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
-                            sh '''
-                            echo "Applying deployment..."
-                            if kubectl apply -f deployment.yaml; then
-                                echo "Deployment applied successfully."
-                            else
-                                echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
-                                exit 1
-                            fi
-                            '''
-                        }
+                script {
+                    withKubeConfig([credentialsId: 'kube']) {
+                        sh '''
+                        echo "Applying deployment..."
+                        kubectl apply -f deployment.yml
+                        '''
                     }
                 }
             }
