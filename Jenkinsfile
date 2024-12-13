@@ -44,7 +44,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent {
                 kubernetes {
-                    inheritFrom 'kubernetes-agent'  // Use the existing Kubernetes agent template
+                    inheritFrom 'kubernetes-agent'  // Use the Kubernetes agent defined in Jenkins configuration
                     defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
                     yaml """
 apiVersion: v1
