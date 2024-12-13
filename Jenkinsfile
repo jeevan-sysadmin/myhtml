@@ -50,7 +50,7 @@ pipeline {
                     withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
-                        if kubectl apply -f deployment.yaml; then
+                        if kubectl apply -f deployment.yaml -n jenkins; then
                             echo "Deployment applied successfully."
                         else
                             echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
