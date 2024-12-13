@@ -45,9 +45,21 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent {
                 kubernetes {
-                    label 'k8s'  // Name of the label for your Kubernetes agent
+                    label 'agent'  // Name of the label for your Kubernetes agent
                     defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
-                    
+                    yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: jnlp
+    image: appi12/html01:2
+    command:
+      - cat
+    tty: true
+"""
                 }
             }
 
