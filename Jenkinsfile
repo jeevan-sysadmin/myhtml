@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_REPO = "appi12/html01" // Replace with your Docker Hub repository
+        DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
-        KUBERNETES_DEPLOYMENT = "html-my" // Replace with your Kubernetes deployment name
+        KUBERNETES_DEPLOYMENT = "html-my"
         KUBERNETES_NAMESPACE = "jenkins"
     }
 
@@ -15,10 +15,9 @@ pipeline {
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/jeevan-sysadmin/myhtml.git', // Replace with your repository URL
-                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1' // Replace with your GitHub credentials ID
-                    ]]
-                ])
+                        url: 'https://github.com/jeevan-sysadmin/myhtml.git',
+                        credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
+                    ]])
             }
         }
 
@@ -46,18 +45,10 @@ pipeline {
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
-                        sh '''
-                        echo "Applying deployment..."
-                        if kubectl apply -f deployment.yaml; then
-                            echo "Deployment applied successfully."
-                        else
-                            echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
-                            exit 1
-                        fi
-                        '''
-                    }
+                    // Create a Kubernetes deployment using kubectl
+                    sh """
+                        kubectl set image deployment/${KUBERNETES_DEPLOYMENT} ${KUBERNETES_DEPLOYMENT}=${DOCKER_IMAGE} -n ${KUBERNETES_NAMESPACE}
+                    """
                 }
             }
         }
