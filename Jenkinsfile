@@ -47,7 +47,7 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'https://127.0.0.1:56229']) { // Replace with your kubeconfig details
+                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'http://127.0.0.1:62413']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
                         if kubectl get deployment ${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE} >/dev/null 2>&1; then
