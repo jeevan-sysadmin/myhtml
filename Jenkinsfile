@@ -45,8 +45,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent {
                 kubernetes {
-                    label 'k8s-agent'  // Name of the label for your Kubernetes agent
-                    defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
+                    label 'k8s-agent'
+                    defaultContainer 'jnlp'
                     yaml """
 apiVersion: v1
 kind: Pod
@@ -55,9 +55,11 @@ metadata:
 spec:
   containers:
   - name: jnlp
-    image: appi12/html01:2
-    command:
-      - cat
+    image: jenkins/inbound-agent:latest
+    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_AGENT_NAME)']
+    env:
+    - name: DOCKER_HOST
+      value: "tcp://docker:2375"
     tty: true
 """
                 }
@@ -66,11 +68,15 @@ spec:
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Ensure kubectl is installed and configured
                     withKubeConfig([credentialsId: 'kube']) {
                         sh '''
                         echo "Applying deployment..."
-                        kubectl apply -f deployment.yml
+                        if kubectl apply -f deployment.yml; then
+                            echo "Deployment applied successfully."
+                        else
+                            echo "Failed to apply deployment. Please check the logs."
+                            exit 1
+                        fi
                         '''
                     }
                 }
