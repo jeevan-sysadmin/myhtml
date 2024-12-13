@@ -4,8 +4,6 @@ pipeline {
     environment {
         DOCKER_HUB_REPO = "appi12/html01" // Replace with your Docker Hub repository
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
-        KUBERNETES_DEPLOYMENT = "html-my" // Replace with your Kubernetes deployment name
-        KUBERNETES_NAMESPACE = "default"
     }
 
     stages {
@@ -42,21 +40,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Apply Deployment') {
             steps {
-                echo 'Deploying to Kubernetes...'
+                echo 'Applying Kubernetes deployment...'
                 script {
-                    // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
-                        sh '''
-                        echo "Applying deployment..."
-                        if kubectl apply -f deployment.yaml -n jenkins; then
-                            echo "Deployment applied successfully."
-                        else
-                            echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
-                            exit 1
-                        fi
-                        '''
+                    def result = sh(script: 'kubectl apply -f deployment.yaml -n jenkins', returnStatus: true)
+                    if (result != 0) {
+                        error("Failed to apply deployment.yaml")
+                    } else {
+                        echo 'Deployment applied successfully.'
                     }
                 }
             }
