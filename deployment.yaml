@@ -1,37 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: html-app-deployment
-  labels:
-    agent: kubernetes
+  name: html-my
+  namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: html-app
+      app: html-my
   template:
     metadata:
       labels:
-        app: html-app
-        agent: kubernetes  # Adding agent label here
+        app: html-my
     spec:
       containers:
-        - name: html-app
-          image: appi12/html01:2
-          ports:
-            - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: html-app-service
-  labels:
-    agent: kubernetes  # Adding agent label here
-spec:
-  selector:
-    app: html-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
+      - name: html-container
+        image: appi12/html01:${BUILD_NUMBER}
+        ports:
+        - containerPort: 80
