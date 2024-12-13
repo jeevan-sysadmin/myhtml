@@ -78,17 +78,6 @@ spec:
                 }
             }
         }
-
-        stage('Apply Deployment') {
-            steps {
-                script {
-                    def result = bat(script: 'kubectl apply -f deployment.yaml', returnStatus: true)
-                    if (result != 0) {
-                        error("Failed to apply deployment.yaml")
-                    }
-                }
-            }
-        }
     }
 
     post {
