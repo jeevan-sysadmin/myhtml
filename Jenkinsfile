@@ -46,7 +46,7 @@ pipeline {
             agent {
                 kubernetes {
                     label 'k8s-agent'  // Name of the label for your Kubernetes agent
-                    defaultContainer 'ci-agent'  // The container where Jenkins will execute the steps
+                    defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
                     yaml """
 apiVersion: v1
 kind: Pod
