@@ -1,6 +1,29 @@
 pipeline {
     agent {
-        kubernetes
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker
+    image: docker:20.10.24-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run/docker.sock
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command:
+    - cat
+    tty: true
+  volumes:
+  - name: docker-socket
+    hostPath:
+      path: /var/run/docker.sock
+"""
+        }
     }
 
     environment {
@@ -51,17 +74,19 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes...'
-                script {
-                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
-                        sh '''
-                        echo "Applying deployment..."
-                        if kubectl apply -f deployment.yaml; then
-                            echo "Deployment applied successfully."
-                        else
-                            echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
-                            exit 1
-                        fi
-                        '''
+                container('kubectl') {
+                    script {
+                        withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
+                            sh '''
+                            echo "Applying deployment..."
+                            if kubectl apply -f deployment.yaml; then
+                                echo "Deployment applied successfully."
+                            else
+                                echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
+                                exit 1
+                            fi
+                            '''
+                        }
                     }
                 }
             }
