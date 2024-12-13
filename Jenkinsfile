@@ -56,25 +56,10 @@ spec:
   containers:
   - name: jnlp
     image: appi12/html01:2
-    command:
-      - cat
-    tty: true
-"""
+    """
                 }
             }
 
-            steps {
-                echo 'Deploying to Kubernetes...'
-                script {
-                    // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'kube']) {
-                        sh '''
-                        echo "Applying deployment..."
-                        kubectl apply -f deployment.yml
-                        '''
-                    }
-                }
-            }
         }
     }
 
