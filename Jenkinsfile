@@ -64,10 +64,15 @@ spec:
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'kube']) {
+                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
-                        kubectl apply -f deployment.yml
+                        if kubectl apply -f deployment.yaml; then
+                            echo "Deployment applied successfully."
+                        else
+                            echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
+                            exit 1
+                        fi
                         '''
                     }
                 }
