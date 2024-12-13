@@ -49,7 +49,6 @@ pipeline {
                     // Ensure kubectl is installed and configured
                     withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:62413']) { // Replace with your kubeconfig details
                         sh '''
-                        minikube start --driver=docker
                         echo "Applying deployment..."
                         if kubectl apply -f deployment.yaml; then
                             echo "Deployment applied successfully."
