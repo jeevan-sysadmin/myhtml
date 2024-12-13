@@ -47,22 +47,7 @@ pipeline {
                 kubernetes {
                     label 'k8s-agent'  // Name of the label for your Kubernetes agent
                     defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
-                    yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  name: jenkins-agent
-spec:
-  containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
-  - name: kubectl
-    image: lachlanevenson/k8s-kubectl:latest
-    command:
-      - cat
-    tty: true
-"""
+                    
                 }
             }
 
