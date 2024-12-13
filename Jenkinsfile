@@ -68,7 +68,7 @@ spec:
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://<YOUR-KUBERNETES-CLUSTER-URL>']) {
+                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) {
                         sh """
                         kubectl set image deployment/${KUBERNETES_DEPLOYMENT} \
                         html-container=${DOCKER_IMAGE} \
