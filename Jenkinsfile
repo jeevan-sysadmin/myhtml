@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            defaultContainer 'jnlp'
+        }
+    }
 
     environment {
         DOCKER_HUB_REPO = "appi12/html01" // Replace with your Docker Hub repository
@@ -25,8 +29,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                script {
-                    docker.build("${DOCKER_IMAGE}")
+                container('docker') {
+                    script {
+                        docker.build("${DOCKER_IMAGE}")
+                    }
                 }
             }
         }
@@ -34,9 +40,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        docker.image("${DOCKER_IMAGE}").push()
+                container('docker') {
+                    script {
+                        docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
+                            docker.image("${DOCKER_IMAGE}").push()
+                        }
                     }
                 }
             }
@@ -46,7 +54,6 @@ pipeline {
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Ensure kubectl is installed and configured
                     withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
