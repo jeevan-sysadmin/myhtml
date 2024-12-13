@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_HUB_REPO = "appi12/html01"
-        DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+        DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${BUILD_NUMBER}"
         KUBERNETES_DEPLOYMENT = "html-my"
         KUBERNETES_NAMESPACE = "default"
     }
@@ -45,8 +45,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent {
                 kubernetes {
-                    label 'k8s-agent'  // Name of the label for your Kubernetes agent
-                    defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
+                    label 'k8s-agent'
+                    defaultContainer 'jnlp'
                     yaml """
 apiVersion: v1
 kind: Pod
@@ -55,7 +55,12 @@ metadata:
 spec:
   containers:
   - name: jnlp
-    image: appi12/html01:2
+    image: 'jenkins/inbound-agent:latest'
+  - name: kubectl
+    image: 'bitnami/kubectl:latest'
+    command:
+    - cat
+    tty: true
     """
                 }
             }
@@ -63,17 +68,13 @@ spec:
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://127.0.0.1:49780']) { // Replace with your kubeconfig details
-                        sh '''
-                        echo "Applying deployment..."
-                        if kubectl apply -f deployment.yaml; then
-                            echo "Deployment applied successfully."
-                        else
-                            echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
-                            exit 1
-                        fi
-                        '''
+                    withKubeConfig([credentialsId: 'sa-k8s-tocken', serverUrl: 'https://<YOUR-KUBERNETES-CLUSTER-URL>']) {
+                        sh """
+                        kubectl set image deployment/${KUBERNETES_DEPLOYMENT} \
+                        html-container=${DOCKER_IMAGE} \
+                        -n ${KUBERNETES_NAMESPACE} --record
+                        kubectl rollout status deployment/${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE}
+                        """
                     }
                 }
             }
