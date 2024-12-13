@@ -17,8 +17,7 @@ pipeline {
                     userRemoteConfigs: [[
                         url: 'https://github.com/jeevan-sysadmin/myhtml.git',
                         credentialsId: 'b38f3c3c-bbdf-4543-86f7-9197ac9117e1'
-                    ]]
-                ])
+                    ]])
             }
         }
 
@@ -45,7 +44,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent {
                 kubernetes {
-                    label 'agent'  // Name of the label for your Kubernetes agent
+                    inheritFrom 'kubernetes'  // Use the Kubernetes agent defined in Jenkins configuration
                     defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
                     yaml """
 apiVersion: v1
