@@ -3,7 +3,7 @@ pipeline {
         kubernetes {
             label 'html-agent'  // Label to identify the agent in the Kubernetes cluster
             defaultContainer 'jnlp' // The default container for Jenkins agent to communicate with Jenkins
-            // yamlFile 'k8s-pod.yaml'  // YAML file that defines the pod configuration (you can use inline YAML too)
+            yamlFile 'k8s-pod.yaml'  // YAML file that defines the pod configuration (you can use inline YAML too)
         }
     }
 
