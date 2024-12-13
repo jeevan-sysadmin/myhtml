@@ -60,7 +60,19 @@ spec:
                 }
             }
 
-        
+            steps {
+                echo 'Deploying to Kubernetes...'
+                script {
+                    // Ensure kubectl is installed and configured
+                    withKubeConfig([credentialsId: 'kube']) {
+                        sh '''
+                        echo "Applying deployment..."
+                        kubectl apply -f deployment.yml
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
