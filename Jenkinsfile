@@ -5,7 +5,7 @@ pipeline {
         DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
         KUBERNETES_DEPLOYMENT = "html-my"
-        KUBERNETES_NAMESPACE = "default"
+        KUBERNETES_NAMESPACE = "jenkins"
     }
 
     stages {
