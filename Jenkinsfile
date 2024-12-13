@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            defaultContainer 'jnlp'
+            defaultContainer 'jenkins-kube-pipline-7-s4d1p-c4ksp-kfbg4'
         }
     }
 
