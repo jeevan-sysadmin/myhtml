@@ -51,10 +51,10 @@ pipeline {
 apiVersion: v1
 kind: Pod
 metadata:
-  name: jenkins-agent
+  name: ci-agent
 spec:
   containers:
-  - name: jnlp
+  - name: mini
     image: appi12/html01:2
     """
                 }
