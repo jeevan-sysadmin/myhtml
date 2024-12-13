@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: jenkins-agent
+spec:
+  containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      args: ['$(JENKINS_SECRET)', '$(JENKINS_NAME)']
+      resources:
+        limits:
+          cpu: "1"
+          memory: "2Gi"
+    - name: docker
+      image: docker:20.10.8
+      command:
+        - "sleep"
+        - "infinity"
+      volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
