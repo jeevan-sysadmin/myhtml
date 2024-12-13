@@ -47,10 +47,15 @@ pipeline {
                 echo 'Deploying to Kubernetes...'
                 script {
                     // Ensure kubectl is installed and configured
-                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'http://127.0.0.1:62413']) { // Replace with your kubeconfig details
+                    withKubeConfig([credentialsId: 'mykube', serverUrl: 'https://127.0.0.1:62413']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
-                        kubectl apply -f deployment.yaml
+                        if kubectl apply -f deployment.yaml; then
+                            echo "Deployment applied successfully."
+                        else
+                            echo "Failed to apply deployment. Check your deployment.yaml and kubectl configuration."
+                            exit 1
+                        fi
                         '''
                     }
                 }
