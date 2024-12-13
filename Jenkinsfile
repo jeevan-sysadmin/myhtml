@@ -1,11 +1,5 @@
 pipeline {
-    agent {
-        kubernetes {
-            label 'html-agent'  // Label to identify the agent in the Kubernetes cluster
-            defaultContainer 'jnlp' // The default container for Jenkins agent to communicate with Jenkins
-            yamlFile 'k8s-pod.yaml'  // YAML file that defines the pod configuration (you can use inline YAML too)
-        }
-    }
+    agent any
 
     environment {
         DOCKER_HUB_REPO = "appi12/html01"
@@ -49,9 +43,33 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
+            agent {
+                kubernetes {
+                    label 'k8s-agent'  // Name of the label for your Kubernetes agent
+                    defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
+                    yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+  - name: kubectl
+    image: lachlanevenson/k8s-kubectl:latest
+    command:
+      - cat
+    tty: true
+"""
+                }
+            }
+
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
+                    // Ensure kubectl is installed and configured
                     withKubeConfig([credentialsId: 'kube']) {
                         sh '''
                         echo "Applying deployment..."
