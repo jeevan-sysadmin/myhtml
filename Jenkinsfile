@@ -49,7 +49,7 @@ pipeline {
                     // Ensure kubectl is installed and configured
                     withKubeConfig([credentialsId: 'mykube', serverUrl: 'http://127.0.0.1:62413']) { // Replace with your kubeconfig details
                         sh '''
-                        echo "Applying deployment..."
+                        
                         kubectl apply -f deployment.yaml
                         '''
                     }
