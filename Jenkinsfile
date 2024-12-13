@@ -5,7 +5,7 @@ pipeline {
         DOCKER_HUB_REPO = "appi12/html01"
         DOCKER_IMAGE = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
         KUBERNETES_DEPLOYMENT = "html-my"
-        KUBERNETES_NAMESPACE = "jenkins"
+        KUBERNETES_NAMESPACE = "default"
     }
 
     stages {
@@ -42,13 +42,36 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
+            agent {
+                kubernetes {
+                    inheritFrom 'kubernetes-agent'  // Use the existing Kubernetes agent template
+                    defaultContainer 'jnlp'  // The container where Jenkins will execute the steps
+                    yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: jnlp
+    image: appi12/html01:2
+    command:
+      - cat
+    tty: true
+"""
+                }
+            }
+
             steps {
                 echo 'Deploying to Kubernetes...'
                 script {
-                    // Create a Kubernetes deployment using kubectl
-                    sh """
-                        kubectl set image deployment/${KUBERNETES_DEPLOYMENT} ${KUBERNETES_DEPLOYMENT}=${DOCKER_IMAGE} -n ${KUBERNETES_NAMESPACE}
-                    """
+                    // Ensure kubectl is installed and configured
+                    withKubeConfig([credentialsId: 'kube']) {
+                        sh '''
+                        echo "Applying deployment..."
+                        kubectl apply -f deployment.yml
+                        '''
+                    }
                 }
             }
         }
