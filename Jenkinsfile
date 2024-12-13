@@ -50,13 +50,7 @@ pipeline {
                     withKubeConfig([credentialsId: 'mykube', serverUrl: 'http://127.0.0.1:62413']) { // Replace with your kubeconfig details
                         sh '''
                         echo "Applying deployment..."
-                        if kubectl get deployment ${KUBERNETES_DEPLOYMENT} -n ${KUBERNETES_NAMESPACE} >/dev/null 2>&1; then
-                            echo "Updating existing deployment..."
-                            kubectl apply -f deployment.yaml -n ${KUBERNETES_NAMESPACE}
-                        else
-                            echo "Creating new deployment..."
-                            kubectl apply -f deployment.yaml -n ${KUBERNETES_NAMESPACE}
-                        fi
+                        kubectl apply -f deployment.yml
                         '''
                     }
                 }
