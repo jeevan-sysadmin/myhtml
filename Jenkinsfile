@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent Kubernetes
 
     environment {
         DOCKER_HUB_REPO = "appi12/html01"
