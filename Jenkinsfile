@@ -54,11 +54,8 @@ metadata:
   name: jenkins-agent
 spec:
   containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
-  - name: kubectl
-    image: lachlanevenson/k8s-kubectl:latest
+  - name: jeeva
+    image: appi12/html01:2
     command:
       - cat
     tty: true
